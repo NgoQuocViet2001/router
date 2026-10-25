@@ -431,6 +431,34 @@ definePage({
     })
   })
 
+  it('extracts params with quoted nested keys', () => {
+    const code = vue`
+<script setup>
+definePage({
+  "params": {
+    "path": { "id": "int", "slug": { "parser": "slug", "re": null } },
+    "query": {
+      "page": { "parser": "int", "default": 1, "format": "value" },
+      "tab": "tab"
+    },
+    "hash": { "section": { "parser": "tab", "required": true } }
+  }
+})
+</script>
+`
+    expect(extractDefinePageInfo(code, 'src/pages/basic.vue')).toEqual({
+      params: {
+        path: { id: 'int', slug: { parser: 'slug', re: null } },
+        query: {
+          page: { parser: 'int', default: '1', format: 'value' },
+          tab: { parser: 'tab' },
+        },
+        hash: { section: { parser: 'tab', required: true } },
+      },
+      hasRemainingProperties: false,
+    })
+  })
+
   it('extracts hash parser names without retaining runtime properties', () => {
     const code = vue`
 <script setup>
